@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Jewerly.Data.Migrations
+namespace Jewerly.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -30,12 +30,8 @@ namespace Jewerly.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CategoriesId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CategoryId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -50,7 +46,7 @@ namespace Jewerly.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -63,7 +59,7 @@ namespace Jewerly.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoriesId");
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("TypeId");
 
@@ -353,7 +349,7 @@ namespace Jewerly.Data.Migrations
                 {
                     b.HasOne("Jewerly.Data.Category", "Categories")
                         .WithMany("Articuls")
-                        .HasForeignKey("CategoriesId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

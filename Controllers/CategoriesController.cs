@@ -53,11 +53,12 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CategoryName,RegisterOn")] Category category)
+        public async Task<IActionResult> Create([Bind("CategoryName")] Category category)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
+                category.RegisterOn = DateTime.Now;
+                _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -85,7 +86,7 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CategoryName,RegisterOn")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CategoryName")] Category category)
         {
             if (id != category.Id)
             {
@@ -96,7 +97,8 @@ namespace Jewerly.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    category.RegisterOn = DateTime.Now;
+                    _context.Categories.Update(category);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

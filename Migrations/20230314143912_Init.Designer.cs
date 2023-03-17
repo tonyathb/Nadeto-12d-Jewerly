@@ -9,17 +9,17 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Jewerly.Data.Migrations
+namespace Jewerly.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230213090313_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20230314143912_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.11")
+                .HasAnnotation("ProductVersion", "6.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -32,9 +32,8 @@ namespace Jewerly.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -49,7 +48,7 @@ namespace Jewerly.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -57,11 +56,14 @@ namespace Jewerly.Data.Migrations
                     b.Property<DateTime>("RegisterOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("Articuls");
                 });
@@ -74,12 +76,12 @@ namespace Jewerly.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("RegisterOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("categoryName")
+                    b.Property<string>("CategoryName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RegisterOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -180,6 +182,8 @@ namespace Jewerly.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArticulId");
 
                     b.HasIndex("CustomerId");
 
@@ -343,13 +347,40 @@ namespace Jewerly.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Jewerly.Data.Articul", b =>
+                {
+                    b.HasOne("Jewerly.Data.Category", "Categories")
+                        .WithMany("Articuls")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Jewerly.Data.Type", "Types")
+                        .WithMany("Articuls")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categories");
+
+                    b.Navigation("Types");
+                });
+
             modelBuilder.Entity("Jewerly.Data.Shopping", b =>
                 {
+                    b.HasOne("Jewerly.Data.Articul", "Articuls")
+                        .WithMany("Shopings")
+                        .HasForeignKey("ArticulId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Jewerly.Data.Customer", "Customers")
                         .WithMany("Shoppings")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Articuls");
 
                     b.Navigation("Customers");
                 });
@@ -405,9 +436,24 @@ namespace Jewerly.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Jewerly.Data.Articul", b =>
+                {
+                    b.Navigation("Shopings");
+                });
+
+            modelBuilder.Entity("Jewerly.Data.Category", b =>
+                {
+                    b.Navigation("Articuls");
+                });
+
             modelBuilder.Entity("Jewerly.Data.Customer", b =>
                 {
                     b.Navigation("Shoppings");
+                });
+
+            modelBuilder.Entity("Jewerly.Data.Type", b =>
+                {
+                    b.Navigation("Articuls");
                 });
 #pragma warning restore 612, 618
         }

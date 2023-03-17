@@ -21,7 +21,8 @@ namespace Jewerly.Controllers
         // GET: Articuls
         public async Task<IActionResult> Index()
         {
-              return View(await _context.Articuls.ToListAsync());
+            var applicationDbContext = _context.Articuls.Include(a => a.Categories).Include(a => a.Types);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Articuls/Details/5
@@ -33,6 +34,8 @@ namespace Jewerly.Controllers
             }
 
             var articul = await _context.Articuls
+                .Include(a => a.Categories)
+                .Include(a => a.Types)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (articul == null)
             {
@@ -45,6 +48,8 @@ namespace Jewerly.Controllers
         // GET: Articuls/Create
         public IActionResult Create()
         {
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName");
             return View();
         }
 
@@ -53,14 +58,17 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Quantity,Category,Type,ImageUrl,Price,Description,RegisterOn")] Articul articul)
+        public async Task<IActionResult> Create([Bind("Name,Quantity,CategoryId,TypeId,ImageUrl,Price,Description")] Articul articul)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(articul);
+                articul.RegisterOn = DateTime.Now;
+                _context.Articuls.Add(articul);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }
 
@@ -77,6 +85,8 @@ namespace Jewerly.Controllers
             {
                 return NotFound();
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }
 
@@ -85,7 +95,7 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Quantity,Category,Type,ImageUrl,Price,Description,RegisterOn")] Articul articul)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Quantity,CategoryId,TypeId,ImageUrl,Price,Description")] Articul articul)
         {
             if (id != articul.Id)
             {
@@ -96,7 +106,8 @@ namespace Jewerly.Controllers
             {
                 try
                 {
-                    _context.Update(articul);
+                    articul.RegisterOn = DateTime.Now;
+                    _context.Articuls.Update(articul);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -112,6 +123,8 @@ namespace Jewerly.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }
 
@@ -124,6 +137,8 @@ namespace Jewerly.Controllers
             }
 
             var articul = await _context.Articuls
+                .Include(a => a.Categories)
+                .Include(a => a.Types)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (articul == null)
             {

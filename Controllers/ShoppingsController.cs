@@ -21,7 +21,7 @@ namespace Jewerly.Controllers
         // GET: Shoppings
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Shoppings.Include(s => s.Customers);
+            var applicationDbContext = _context.Shoppings.Include(s => s.Articuls).Include(s => s.Customers);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,6 +34,7 @@ namespace Jewerly.Controllers
             }
 
             var shopping = await _context.Shoppings
+                .Include(s => s.Articuls)
                 .Include(s => s.Customers)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (shopping == null)
@@ -47,7 +48,8 @@ namespace Jewerly.Controllers
         // GET: Shoppings/Create
         public IActionResult Create()
         {
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name");
             return View();
         }
 
@@ -56,15 +58,17 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CustomerId,ArticulId,Quantity,RegisterOn")] Shopping shopping)
+        public async Task<IActionResult> Create([Bind("CustomerId,ArticulId,Quantity")] Shopping shopping)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(shopping);
+                shopping.RegisterOn = DateTime.Now;
+                _context.Shoppings.Add(shopping);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Id", shopping.CustomerId);
+            ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 
@@ -81,7 +85,8 @@ namespace Jewerly.Controllers
             {
                 return NotFound();
             }
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Id", shopping.CustomerId);
+            ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 
@@ -90,7 +95,7 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerId,ArticulId,Quantity,RegisterOn")] Shopping shopping)
+        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,ArticulId,Quantity")] Shopping shopping)
         {
             if (id != shopping.Id)
             {
@@ -117,7 +122,8 @@ namespace Jewerly.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Id", shopping.CustomerId);
+            ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 
@@ -130,6 +136,7 @@ namespace Jewerly.Controllers
             }
 
             var shopping = await _context.Shoppings
+                .Include(s => s.Articuls)
                 .Include(s => s.Customers)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (shopping == null)
@@ -161,7 +168,7 @@ namespace Jewerly.Controllers
 
         private bool ShoppingExists(int id)
         {
-          return _context.Shoppings.Any(e => e.Id == id);
+          return (_context.Shoppings?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
