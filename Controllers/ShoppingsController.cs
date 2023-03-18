@@ -6,23 +6,42 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Jewerly.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Jewerly.Controllers
 {
+    [Authorize]
     public class ShoppingsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ShoppingsController(ApplicationDbContext context)
+        private readonly UserManager<Customer> _userManager;
+        
+        public ShoppingsController(ApplicationDbContext context, UserManager<Customer> userManager)
         {
             _context = context;
+            _userManager = userManager;
+            
         }
 
         // GET: Shoppings
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Shoppings.Include(s => s.Articuls).Include(s => s.Customers);
+            if (User.IsInRole("Admin"))
+            {
+                var applicationDbContext = _context.Shoppings.Include(s => s.Articuls).Include(s => s.Customers);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            else
+            {
+                var currentUser = _userManager.GetUserId(User);
+                var applicationDbContext = _context.Shoppings
+                                    .Include(s => s.Articuls)
+                                    .Include(s => s.Customers)
+                                    .Where(s => s.CustomerId == currentUser);
             return View(await applicationDbContext.ToListAsync());
+            }
+            
         }
 
         // GET: Shoppings/Details/5
@@ -49,7 +68,7 @@ namespace Jewerly.Controllers
         public IActionResult Create()
         {
             ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name");
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name");
+            //ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name");
             return View();
         }
 
@@ -58,17 +77,19 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,ArticulId,Quantity")] Shopping shopping)
+        public async Task<IActionResult> Create([Bind("ArticulId,Quantity")] Shopping shopping)
         {
             if (ModelState.IsValid)
             {
+                var currentUser = _userManager.GetUserId(User);
                 shopping.RegisterOn = DateTime.Now;
+                shopping.CustomerId = currentUser;
                 _context.Shoppings.Add(shopping);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
+            //ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 
@@ -86,7 +107,7 @@ namespace Jewerly.Controllers
                 return NotFound();
             }
             ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
+            //ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 
@@ -95,7 +116,7 @@ namespace Jewerly.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,ArticulId,Quantity")] Shopping shopping)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticulId,Quantity")] Shopping shopping)
         {
             if (id != shopping.Id)
             {
@@ -106,7 +127,10 @@ namespace Jewerly.Controllers
             {
                 try
                 {
-                    _context.Update(shopping);
+                    var currentUser = _userManager.GetUserId(User);
+                    shopping.RegisterOn = DateTime.Now;
+                    shopping.CustomerId = currentUser;
+                    _context.Shoppings.Update(shopping);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -123,7 +147,7 @@ namespace Jewerly.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ArticulId"] = new SelectList(_context.Articuls, "Id", "Name", shopping.ArticulId);
-            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
+            //ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", shopping.CustomerId);
             return View(shopping);
         }
 

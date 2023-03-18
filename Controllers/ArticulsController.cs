@@ -48,7 +48,7 @@ namespace Jewerly.Controllers
         // GET: Articuls/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "CategoryName");
             ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName");
             return View();
         }
@@ -67,7 +67,7 @@ namespace Jewerly.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "CategoryName", articul.CategoryId);
             ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }
@@ -85,7 +85,7 @@ namespace Jewerly.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "CategoryName", articul.CategoryId);
             ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }
@@ -123,7 +123,7 @@ namespace Jewerly.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", articul.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "CategoryName", articul.CategoryId);
             ViewData["TypeId"] = new SelectList(_context.Types, "Id", "TypeName", articul.TypeId);
             return View(articul);
         }

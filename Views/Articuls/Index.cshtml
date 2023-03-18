@@ -49,13 +49,13 @@
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Categories.Id)
+                @Html.DisplayFor(modelItem => item.Categories.CategoryName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Types.Id)
+                @Html.DisplayFor(modelItem => item.Types.TypeName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
+                <img src="@Html.DisplayFor(modelItem => item.ImageUrl)" width=100 />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)

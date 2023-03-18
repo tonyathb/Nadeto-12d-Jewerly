@@ -26,16 +26,16 @@
             @Html.DisplayNameFor(model => model.Categories)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Categories.Id)
+            @Html.DisplayFor(model => model.Categories.CategoryName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Types)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Types.Id)
+            @Html.DisplayFor(model => model.Types.TypeName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
+            <img src="@Html.DisplayNameFor(model => model.ImageUrl)" width=100 />
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.ImageUrl)
